@@ -67,4 +67,4 @@ $graph = graph d {        # Generate the graph
 } 
 
 # Export the graph and save the image locally
-$graph | Export-PSGraph -ShowGraph -DestinationPath "$pss\$(Get-Timestamp).png" -LayoutEngine fdp
+$graph | Export-PSGraph -ShowGraph -DestinationPath "$pss\outputs\$(Get-Timestamp).png" -LayoutEngine Hierarchical
