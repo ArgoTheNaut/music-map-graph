@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Reads the local file .\artists.txt
+    Reads the local file .\artists.txt, acquires data from music-map.com from each artist, and graphs how they are connected
 #>
 
 
