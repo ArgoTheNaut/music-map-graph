@@ -8,8 +8,8 @@
 Import-Module PSGraph
 
 $pss = $PSScriptRoot
-$artistsBasePath = "$pss\artistWebPages"
-if(-not (Test-Path $artistsBasePath)){mkdir $artistsBasePath}
+$Global:artistsBasePath = "$pss\artistWebPages"
+if(-not (Test-Path $Global:artistsBasePath)){mkdir $Global:artistsBasePath}
 
 Function Get-Timestamp {
     $d = Get-Date
@@ -18,7 +18,7 @@ Function Get-Timestamp {
 
 # Initialize artist list
 [string[]]$artists = Get-Content "$pss\artists.txt" | Sort-Object                           # Initialize as list to acquire
-### $artists = ls $artistsBasePath | % {$_.Name} | % {$_.Substring(0, $_.IndexOf("."))}     # Initialize as list of acquired .html files
+### $artists = ls $Global:artistsBasePath | % {$_.Name} | % {$_.Substring(0, $_.IndexOf("."))}     # Initialize as list of acquired .html files
 
 $edges = @()                                     # directed connections between nodes denote the destination appeared in the list of the source node
 $baseUrl = "https://www.music-map.com/"
@@ -29,7 +29,7 @@ $i=0
 $artists | foreach {
     Write-Progress -Activity "Processing $_" -PercentComplete ([int]($i*100/$artists.Length))
     $i++
-    $webPageFilePath = "$artistsBasePath\$_.html"
+    $webPageFilePath = "$Global:artistsBasePath\$_.html"
     $artistName = $_
     $artistUrlSuffix = $_.Replace(" ","+")                 # Convert artist name to search string for web client
     $VersionSite = $baseUrl + $artistUrlSuffix
