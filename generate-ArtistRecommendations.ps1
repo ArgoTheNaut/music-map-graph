@@ -1,5 +1,10 @@
 ﻿$artists = Import-Csv .\artists.csv
 
+$replaceStrings = @{
+    "the" = "*"
+    " "   = "*"
+}
+
 function duration-toSeconds($str){
     $timeSec = 0
     [int[]]$parts = $str -split ":"
@@ -13,6 +18,7 @@ $artists | foreach {$_.PlayTime = duration-toSeconds $_.PlayTime}
 
 $recommendations = @{}
 
+Write-host 'Generating weights'
 $artists | foreach {$a = $_.Authors; $pt = $_.PlayTime
     $webPageFilePath = ".\artistWebPages\$a.html"
     # Filter out artist names from raw HTML
@@ -24,10 +30,25 @@ $artists | foreach {$a = $_.Authors; $pt = $_.PlayTime
     }
 }
 
-$artists | foreach {$recommendations.Remove($_.Authors)}
-
 $reccObjects = $recommendations.Keys | foreach {
-    [PSCustomObject]@{Name=$_; Weight=$recommendations[$_]}
+    [PSCustomObject]@{Name=$_; Weight=$recommendations[$_]; AlreadyKnown=0}
 } | Sort-Object -Property Weight -Descending
+
+Write-Host "Accounting for what you already listened to..."
+$artists | foreach {
+    $a = $_
+    $replaceStrings.Keys | foreach {$a.Authors = $a.Authors.Replace($_, $replaceStrings[$_])}
+    $reccObjects | foreach {
+        if($_.Name -like $a.Authors){
+            $_.Weight -= $a.PlayTime * $a.PlayTime
+            $_.AlreadyKnown += $a.PlayTime
+        }
+    }
+}
+
+$reccObjects = $reccObjects | Sort-Object -Property Weight -Descending
+
+
+# $artists | foreach {$recommendations.Remove($_.Authors)}
 
 0..30 | foreach {$reccObjects[$_]}
